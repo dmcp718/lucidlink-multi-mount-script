@@ -14,7 +14,7 @@ This script automates the creation and configuration of multiple LucidLink servi
 
 - Linux system with systemd
 - sudo privileges
-- LucidLink client (lucid2) installed
+- LucidLink client (lucidlink v2.x) installed
 - systemd-creds available (systemd version 250 or higher)
 
 ## Usage
