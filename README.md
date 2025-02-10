@@ -17,6 +17,23 @@ This script automates the creation and configuration of multiple LucidLink v2.x 
 - LucidLink client (lucidlink v2.x) installed
 - systemd-creds available (systemd version 250 or higher)
 
+## Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/dmcp718/lucidlink-multi-mount-script.git
+```
+
+2. Navigate to the repository directory:
+```bash
+cd lucidlink-multi-mount-script
+```
+
+3. Make the script executable:
+```bash
+chmod +x lucidlink-multi-service.sh
+```
+
 ## Usage
 
 ```bash
