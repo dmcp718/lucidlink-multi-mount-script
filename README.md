@@ -12,7 +12,7 @@ This script automates the creation and configuration of multiple LucidLink v2.x 
 
 ## Prerequisites
 
-- Linux system with systemd
+- Linux system with systemd (version 250 or later)
 - sudo privileges
 - LucidLink client (lucidlink v2.x) installed
 - systemd-creds available (systemd version 250 or higher)
