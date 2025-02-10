@@ -117,7 +117,7 @@ View logs for a specific instance:
 sudo journalctl -u lucidlink-1.service
 ```
 
-Note: Each instance must be managed separately. Wildcard patterns (like `lucidlink-*.service`) are not reliable for managing multiple services at once.
+Note: For best results manage each service separately. Wildcard patterns (like `lucidlink-*.service`) may not be reliable for managing multiple services at once.
 
 ## What the Script Does
 
