@@ -105,8 +105,8 @@ sudo sed -i -e 's/#user_allow_other/user_allow_other/g' /etc/fuse.conf
 # Create base directories
 sudo mkdir -p "$MOUNT_BASE"
 sudo mkdir -p "$CACHE_LOCATION"
-sudo chown -R lucidlink:lucidlink "$MOUNT_BASE"
-sudo chown -R lucidlink:lucidlink "$CACHE_LOCATION"
+sudo chown lucidlink:lucidlink "$MOUNT_BASE"
+sudo chown lucidlink:lucidlink "$CACHE_LOCATION"
 sudo chmod 755 "$MOUNT_BASE"
 sudo chmod 755 "$CACHE_LOCATION"
 
@@ -132,8 +132,8 @@ for ((i=1; i<=NUMBER; i++)); do
     # Create instance-specific directories
     sudo mkdir -p "${MOUNT_BASE}/lucidlink-${i}"
     sudo mkdir -p "/client/lucid/lucidlink-${i}"
-    sudo chown -R lucidlink:lucidlink "${MOUNT_BASE}/lucidlink-${i}"
-    sudo chown -R lucidlink:lucidlink "/client/lucid/lucidlink-${i}"
+    sudo chown lucidlink:lucidlink "${MOUNT_BASE}/lucidlink-${i}"
+    sudo chown lucidlink:lucidlink "/client/lucid/lucidlink-${i}"
     sudo chmod 755 "${MOUNT_BASE}/lucidlink-${i}"
     sudo chmod 755 "/client/lucid/lucidlink-${i}"
     
@@ -198,6 +198,7 @@ EOF
         if [ $attempt -eq 30 ]; then
             echo "Warning: Service lucidlink-${i} did not link within 30 seconds"
             echo "Current status: $(/usr/bin/lucid2 --instance ${INSTANCE_NUM} status 2>&1)"
+            sudo systemctl status lucidlink-${i}.service
             continue
         fi
         sleep 1
@@ -205,12 +206,14 @@ EOF
 
     # Configure cache with error handling
     echo "Configuring cache for lucidlink-${i}..."
-    if ! /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Location ${CACHE_LOCATION}; then
+    if ! /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Location ${CACHE_LOCATION} 2>/dev/null; then
         echo "Warning: Failed to set cache location for lucidlink-${i}"
+        echo "Current status: $(/usr/bin/lucid2 --instance ${INSTANCE_NUM} status 2>&1)"
     fi
     sleep 1
-    if ! /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Size ${CACHE_SIZE}; then
+    if ! /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Size ${CACHE_SIZE} 2>/dev/null; then
         echo "Warning: Failed to set cache size for lucidlink-${i}"
+        echo "Current status: $(/usr/bin/lucid2 --instance ${INSTANCE_NUM} status 2>&1)"
     fi
     sleep 1
     
