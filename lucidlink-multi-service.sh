@@ -102,6 +102,14 @@ sudo chown -R lucidlink:lucidlink /client/lucid
 sudo chmod 700 -R /client/lucid
 sudo sed -i -e 's/#user_allow_other/user_allow_other/g' /etc/fuse.conf
 
+# Create base directories
+sudo mkdir -p "$MOUNT_BASE"
+sudo mkdir -p "$CACHE_LOCATION"
+sudo chown -R lucidlink:lucidlink "$MOUNT_BASE"
+sudo chown -R lucidlink:lucidlink "$CACHE_LOCATION"
+sudo chmod 755 "$MOUNT_BASE"
+sudo chmod 755 "$CACHE_LOCATION"
+
 # Get password securely
 read -sp "Enter password: " LLPASSWD
 echo
@@ -120,6 +128,14 @@ sudo chmod 700 /etc/credstore
 for ((i=1; i<=NUMBER; i++)); do
     INSTANCE_NUM=$((500 + i))
     SERVICE_NAME="lucidlink-${i}"
+    
+    # Create instance-specific directories
+    sudo mkdir -p "${MOUNT_BASE}/lucidlink-${i}"
+    sudo mkdir -p "/client/lucid/lucidlink-${i}"
+    sudo chown -R lucidlink:lucidlink "${MOUNT_BASE}/lucidlink-${i}"
+    sudo chown -R lucidlink:lucidlink "/client/lucid/lucidlink-${i}"
+    sudo chmod 755 "${MOUNT_BASE}/lucidlink-${i}"
+    sudo chmod 755 "/client/lucid/lucidlink-${i}"
     
     # Encrypt password for this service instance
     echo -n "${LLPASSWD}" | sudo systemd-creds encrypt --name=lucidlink-${i} - /etc/credstore/lucidlink-${i}.cred
@@ -168,17 +184,39 @@ EOF
     echo "Starting 'systemctl start lucidlink-${i}.service'"
     sudo systemctl start lucidlink-${i}.service
     wait
-    until /usr/bin/lucid2 --instance ${INSTANCE_NUM} status | grep -qo "Linked"
-    do
+    
+    # Wait for service to start and check status
+    echo "Waiting for service lucidlink-${i} to start..."
+    for attempt in {1..30}; do
+        if sudo systemctl is-active --quiet lucidlink-${i}.service; then
+            status=$(/usr/bin/lucid2 --instance ${INSTANCE_NUM} status 2>&1)
+            if echo "$status" | grep -q "Linked"; then
+                echo "Service lucidlink-${i} is linked"
+                break
+            fi
+        fi
+        if [ $attempt -eq 30 ]; then
+            echo "Warning: Service lucidlink-${i} did not link within 30 seconds"
+            echo "Current status: $(/usr/bin/lucid2 --instance ${INSTANCE_NUM} status 2>&1)"
+            continue
+        fi
         sleep 1
     done
+
+    # Configure cache with error handling
+    echo "Configuring cache for lucidlink-${i}..."
+    if ! /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Location ${CACHE_LOCATION}; then
+        echo "Warning: Failed to set cache location for lucidlink-${i}"
+    fi
     sleep 1
-    /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Location ${CACHE_LOCATION}
+    if ! /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Size ${CACHE_SIZE}; then
+        echo "Warning: Failed to set cache size for lucidlink-${i}"
+    fi
     sleep 1
-    /usr/bin/lucid2 --instance ${INSTANCE_NUM} config --set --DataCache.Size ${CACHE_SIZE}
-    sleep 1
-    echo "Restarting 'systemctl start lucidlink-${i}.service'"
+    
+    echo "Restarting service lucidlink-${i}..."
     sudo systemctl restart lucidlink-${i}.service
+    sleep 2
 done
 
 # Cleanup credentials from memory
