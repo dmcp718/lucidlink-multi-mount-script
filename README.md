@@ -74,6 +74,58 @@ The script will securely prompt for your LucidLink password. This password is:
     --number 3
 ```
 
+### Managing Service Instances
+
+The script creates systemd services named `lucidlink-N.service`, where N is the instance number (1, 2, 3, etc.).
+Each instance has its own:
+- Service name: `lucidlink-N.service`
+- Mount point: `/mnt/lucid/lucidlink-N`
+- Configuration directory: `/client/lucid/lucidlink-N`
+- Instance number: `50N` (e.g., 501, 502, 503)
+
+#### Service Management Commands
+
+Start a specific instance:
+```bash
+sudo systemctl start lucidlink-1.service
+```
+
+Stop a specific instance:
+```bash
+sudo systemctl stop lucidlink-2.service
+```
+
+Restart a specific instance:
+```bash
+sudo systemctl restart lucidlink-3.service
+```
+
+Check status of a specific instance:
+```bash
+sudo systemctl status lucidlink-1.service
+```
+
+Check LucidLink status for a specific instance:
+```bash
+/usr/bin/lucid2 --instance 501 status  # For instance 1
+/usr/bin/lucid2 --instance 502 status  # For instance 2
+```
+
+Start all instances:
+```bash
+sudo systemctl start 'lucidlink-*.service'
+```
+
+Stop all instances:
+```bash
+sudo systemctl stop 'lucidlink-*.service'
+```
+
+View logs for a specific instance:
+```bash
+sudo journalctl -u lucidlink-1.service
+```
+
 ## What the Script Does
 
 1. **Setup Phase**
