@@ -1,6 +1,6 @@
 # LucidLink Multi-Service Setup Script
 
-This script automates the creation and configuration of multiple LucidLink v2.xservice instances on a Linux system using systemd.
+This script automates the creation and configuration of multiple LucidLink v2.x service instances on a Linux system using systemd.
 
 ## Features
 
