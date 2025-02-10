@@ -85,46 +85,39 @@ Each instance has its own:
 
 #### Service Management Commands
 
-Start a specific instance:
+Each service instance must be managed individually. For example, with 3 instances:
+
+Start instances:
 ```bash
 sudo systemctl start lucidlink-1.service
+sudo systemctl start lucidlink-2.service
+sudo systemctl start lucidlink-3.service
 ```
 
-Stop a specific instance:
+Stop instances:
 ```bash
+sudo systemctl stop lucidlink-1.service
 sudo systemctl stop lucidlink-2.service
+sudo systemctl stop lucidlink-3.service
 ```
 
 Restart a specific instance:
 ```bash
-sudo systemctl restart lucidlink-3.service
+sudo systemctl restart lucidlink-2.service
 ```
 
-Check status of a specific instance:
+Check status of instances:
 ```bash
-sudo systemctl status lucidlink-1.service
-```
-
-Check LucidLink status for a specific instance:
-```bash
-/usr/bin/lucid2 --instance 501 status  # For instance 1
-/usr/bin/lucid2 --instance 502 status  # For instance 2
-```
-
-Start all instances:
-```bash
-sudo systemctl start 'lucidlink-*.service'
-```
-
-Stop all instances:
-```bash
-sudo systemctl stop 'lucidlink-*.service'
+sudo systemctl status lucidlink-1.service  # systemd service status
+/usr/bin/lucid2 --instance 501 status     # LucidLink status for instance 1
 ```
 
 View logs for a specific instance:
 ```bash
 sudo journalctl -u lucidlink-1.service
 ```
+
+Note: Each instance must be managed separately. Wildcard patterns (like `lucidlink-*.service`) are not reliable for managing multiple services at once.
 
 ## What the Script Does
 
